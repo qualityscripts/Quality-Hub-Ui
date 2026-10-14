@@ -12,20 +12,9 @@ local Window = Fluent:CreateWindow({
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
--- Sidebar categories (collapsible). Icons are Lucide names: https://lucide.dev/icons/
-local Hub = Window:AddCategory("Quality Hub")
-local Farm = Window:AddCategory("Farm")
-local Progression = Window:AddCategory("Progression")
-local Combat = Window:AddCategory("Combat")
-
+-- Tabs can also be grouped with Window:AddCategory("Name"):AddTab({...}). Icons are Lucide names: https://lucide.dev/icons/
 local Tabs = {
-    Home = Hub:AddTab({ Title = "Home", Icon = "home" }),
-    AutoQuest = Farm:AddTab({ Title = "Auto Quest", Icon = "scroll" }),
-    MobFarm = Farm:AddTab({ Title = "Mob Farm", Icon = "swords" }),
-    Chests = Farm:AddTab({ Title = "Chests", Icon = "package" }),
-    Haki = Progression:AddTab({ Title = "Haki", Icon = "flame" }),
-    Hao = Progression:AddTab({ Title = "Hao", Icon = "crown" }),
-    Combat = Combat:AddTab({ Title = "Combat", Icon = "sword" }),
+    Example = Window:AddTab({ Title = "Example", Icon = "home" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
 }
 
@@ -33,99 +22,80 @@ local Options = Fluent.Options
 
 do
     -- Sections are cards. Side = "Left" / "Right" (alternates if omitted).
-    local MobFarm = Tabs.MobFarm:AddSection({ Title = "Mob Farm", Icon = "swords", Side = "Left" })
+    local Example = Tabs.Example:AddSection({ Title = "Example", Icon = "home", Side = "Left" })
 
-    MobFarm:AddToggle("AutoFarmMobs", {
-        Title = "Auto Farm Mobs",
-        Description = "Kills the mobs you picked nonstop",
+    Example:AddParagraph({
+        Title = "Example",
+        Content = "Example paragraph.",
+    })
+
+    Example:AddButton({
+        Title = "Example",
+        Description = "Example button",
+        Callback = function()
+            print("Example button pressed")
+        end
+    })
+
+    Example:AddToggle("ExampleToggle", {
+        Title = "Example",
+        Description = "Example toggle",
         Default = false,
-    })
-
-    local MobList = MobFarm:AddDropdown("Mobs", {
-        Title = "Mobs",
-        Description = "Which mobs to farm (none = all)",
-        Values = { "Bandit", "Monkey", "Gorilla", "Pirate" },
-        Multi = true,
-        Default = {},
-    })
-
-    MobFarm:AddButton({
-        Title = "Refresh Mobs",
-        Description = "Updates the mob list",
-        Callback = function()
-            MobList:SetValues({ "Bandit", "Monkey", "Gorilla", "Pirate", "Brute" })
+        Callback = function(Value)
+            print("Example toggle:", Value)
         end
     })
 
-    MobFarm:AddToggle("QuestTargetsFirst", {
-        Title = "Quest Targets First",
-        Description = "Your own quest spawns go first",
-        Default = true,
-    })
-
-    MobFarm:AddToggle("SkipOthersQuestMobs", {
-        Title = "Skip Others' Quest Mobs",
-        Description = "Leaves other players' quest spawns alone",
-        Default = true,
-    })
-
-    local MobTP = Tabs.MobFarm:AddSection({ Title = "Mob TP", Icon = "map-pin", Side = "Left" })
-
-    MobTP:AddDropdown("TPMob", {
-        Title = "Mob",
-        Description = "Which mob to go to",
-        Values = { "Bandit", "Monkey", "Gorilla" },
-        Multi = false,
-    })
-
-    MobTP:AddButton({
-        Title = "Go To Mob",
-        Description = "Takes you to the closest one",
-        Callback = function()
-            print("Go to", Options.TPMob.Value)
+    Example:AddSlider("ExampleSlider", {
+        Title = "Example",
+        Description = "Example slider",
+        Default = 50, Min = 0, Max = 100, Rounding = 0,
+        Suffix = "%", -- optional text after the value
+        Callback = function(Value)
+            print("Example slider:", Value)
         end
     })
 
-    local Position = Tabs.MobFarm:AddSection({ Title = "Farm Position", Icon = "crosshair", Side = "Right" })
-
-    Position:AddDropdown("FarmMethod", {
-        Title = "Farm Method",
-        Description = "Teleport locks on, Tween glides over first",
-        Values = { "Teleport", "Tween" },
-        Default = "Teleport",
+    Example:AddDropdown("ExampleDropdown", {
+        Title = "Example",
+        Description = "Example dropdown",
+        Values = { "Example 1", "Example 2", "Example 3" },
+        Multi = false, -- true lets you pick several values
+        Default = "Example 1",
+        Callback = function(Value)
+            print("Example dropdown:", Value)
+        end
     })
 
-    Position:AddDropdown("FarmPosition", {
-        Title = "Position",
-        Description = "Where you stand on the mob",
-        Values = { "Behind", "Above", "Below", "Front" },
-        Default = "Behind",
+    Example:AddColorpicker("ExampleColorpicker", {
+        Title = "Example",
+        Description = "Example color picker",
+        Default = Color3.fromRGB(255, 255, 255),
+        Callback = function(Color)
+            print("Example color:", Color)
+        end
     })
 
-    Position:AddSlider("Distance", {
-        Title = "Distance",
-        Description = "How far from the mob",
-        Default = 3, Min = 0, Max = 20, Rounding = 1,
-        Suffix = " studs",
+    Example:AddKeybind("ExampleKeybind", {
+        Title = "Example",
+        Description = "Example keybind",
+        Mode = "Toggle", -- Always, Toggle, Hold
+        Default = "E",
+        Callback = function(Value)
+            print("Example keybind:", Value)
+        end
     })
 
-    Position:AddSlider("HeightOffset", {
-        Title = "Height Offset",
-        Description = "Moves you up or down",
-        Default = 0, Min = -20, Max = 20, Rounding = 1,
-    })
-
-    Position:AddSlider("TweenSpeed", {
-        Title = "Tween Speed",
-        Description = "How fast Tween glides",
-        Default = 100, Min = 16, Max = 500, Rounding = 0,
-        Suffix = " studs/s",
-    })
-
-    local Welcome = Tabs.Home:AddSection({ Title = "Welcome", Icon = "home" })
-    Welcome:AddParagraph({
-        Title = "Quality Hub",
-        Content = "Press LeftControl to hide or show the menu.",
+    Example:AddInput("ExampleInput", {
+        Title = "Example",
+        Description = "Example input",
+        Default = "",
+        Placeholder = "Example",
+        Numeric = false, -- only allows numbers
+        Finished = false, -- only calls back when you press enter
+        Callback = function(Value)
+            print("Example input:", Value)
+        end
     })
 end
 
@@ -139,6 +109,6 @@ SaveManager:SetFolder("QualityHub/specific-game")
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
-Window:SelectTab(3) -- Mob Farm
+Window:SelectTab(1)
 
 SaveManager:LoadAutoloadConfig()
