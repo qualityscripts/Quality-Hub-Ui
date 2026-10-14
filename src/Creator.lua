@@ -95,28 +95,33 @@ function Creator.GetThemeProperty(Property)
 	return Themes["Quality"][Property]
 end
 
-function Creator.UpdateTheme()
-	local SurfaceTransparency = require(Root).UITransparency or 0
-	for Instance, Object in next, Creator.Registry do
-		for Property, ColorIdx in next, Object.Properties do
-			Instance[Property] = Creator.GetThemeProperty(ColorIdx)
-		end
-		if Object.Surface then
-			Instance.BackgroundTransparency = Object.Properties.BackgroundColor3 == "Accent" and 0 or SurfaceTransparency
-		end
+local function ApplyTheme(Instance, Data)
+	for Property, ColorIdx in next, Data.Properties do
+		Instance[Property] = Creator.GetThemeProperty(ColorIdx)
 	end
-
-	for _, Motor in next, Creator.TransparencyMotors do
-		Motor:setGoal(Flipper.Instant.new(Creator.GetThemeProperty("ElementTransparency")))
+	if Data.Surface then
+		local SurfaceTransparency = require(Root).UITransparency or 0
+		Instance.BackgroundTransparency = Data.Properties.BackgroundColor3 == "Accent" and 0 or SurfaceTransparency
 	end
 end
 
+-- Repaints every themed object; only needed when the theme, a color or the transparency changes.
+function Creator.UpdateTheme()
+	for Instance, Data in next, Creator.Registry do
+		ApplyTheme(Instance, Data)
+	end
+
+	local ElementTransparency = Creator.GetThemeProperty("ElementTransparency")
+	for Motor in next, Creator.TransparencyMotors do
+		Motor:setGoal(Flipper.Instant.new(ElementTransparency))
+	end
+end
+
+-- New objects are themed on their own: repainting everything per object made rebuilding a
+-- dropdown's options repaint the whole UI once per option.
 function Creator.AddThemeObject(Object, Properties)
-	local Idx = #Creator.Registry + 1
 	local Data = {
-		Object = Object,
 		Properties = Properties,
-		Idx = Idx,
 		-- Solid themed backgrounds follow the UI Transparency setting; ones that start hidden (hover/selection) manage their own.
 		Surface = Properties.BackgroundColor3 ~= nil
 			and Properties.BackgroundColor3 ~= "NotificationBg"
@@ -124,14 +129,21 @@ function Creator.AddThemeObject(Object, Properties)
 			and Object.BackgroundTransparency == 0,
 	}
 
+	if not Creator.Registry[Object] then
+		-- Forget destroyed objects (e.g. old dropdown options) so repaints don't keep growing.
+		Object.Destroying:Once(function()
+			Creator.Registry[Object] = nil
+		end)
+	end
 	Creator.Registry[Object] = Data
-	Creator.UpdateTheme()
+	ApplyTheme(Object, Data)
 	return Object
 end
 
 function Creator.OverrideTag(Object, Properties)
-	Creator.Registry[Object].Properties = Properties
-	Creator.UpdateTheme()
+	local Data = Creator.Registry[Object]
+	Data.Properties = Properties
+	ApplyTheme(Object, Data)
 end
 
 function Creator.New(Name, Properties, Children)
@@ -194,7 +206,12 @@ function Creator.SpringMotor(Initial, Instance, Prop, IgnoreDialogCheck, ResetOn
 	end)
 
 	if ResetOnThemeChange then
-		table.insert(Creator.TransparencyMotors, Motor)
+		Creator.TransparencyMotors[Motor] = true
+		Motor:setGoal(Flipper.Instant.new(Creator.GetThemeProperty("ElementTransparency")))
+		Instance.Destroying:Once(function()
+			Creator.TransparencyMotors[Motor] = nil
+			Motor:stop()
+		end)
 	end
 
 	local function SetValue(Value, Ignore)
