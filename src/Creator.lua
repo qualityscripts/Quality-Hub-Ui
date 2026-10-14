@@ -119,6 +119,7 @@ function Creator.AddThemeObject(Object, Properties)
 		Idx = Idx,
 		-- Solid themed backgrounds follow the UI Transparency setting; ones that start hidden (hover/selection) manage their own.
 		Surface = Properties.BackgroundColor3 ~= nil
+			and Properties.BackgroundColor3 ~= "NotificationBg"
 			and Object:IsA("GuiObject")
 			and Object.BackgroundTransparency == 0,
 	}

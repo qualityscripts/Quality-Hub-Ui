@@ -211,7 +211,7 @@ return function(Config)
 				Size = UDim2.fromOffset(15, 15),
 				Position = UDim2.fromScale(0.5, 0.5),
 				AnchorPoint = Vector2.new(0.5, 0.5),
-				ThemeTag = { ImageColor3 = "SubText" },
+				ThemeTag = { ImageColor3 = "Text" },
 			}),
 		})
 		Creator.AddSignal(Button.MouseEnter, function()

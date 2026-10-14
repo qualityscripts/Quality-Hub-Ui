@@ -6,6 +6,7 @@ return {
 	Background = Color3.fromRGB(13, 13, 13),
 	WindowBorder = Color3.fromRGB(34, 34, 34),
 	UIOutline = Color3.fromRGB(0, 0, 0),
+	NotificationBg = Color3.fromRGB(17, 17, 17),
 	Sidebar = Color3.fromRGB(15, 15, 15),
 	Divider = Color3.fromRGB(32, 32, 32),
 	CategoryText = Color3.fromRGB(125, 125, 125),

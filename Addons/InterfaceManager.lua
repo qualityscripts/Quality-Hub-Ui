@@ -141,6 +141,7 @@ local InterfaceManager = {} do
 		{ Key = "TabSelected", Title = "Selected Tab Color", Description = "Highlight behind the active tab." },
 		{ Key = "Text", Title = "Text Color", Description = "Titles and labels." },
 		{ Key = "SubText", Title = "Description Color", Description = "Grey description text." },
+		{ Key = "NotificationBg", Title = "Notification Color", Description = "Background of notifications." },
 	}
 
 	function InterfaceManager:BuildCustomizeSection(tab)

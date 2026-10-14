@@ -35,9 +35,11 @@ function Element:New(Idx, Config)
 	Slider.SetTitle = SliderFrame.SetTitle
 	Slider.SetDesc = SliderFrame.SetDesc
 
-	local SliderDisplay = New("TextLabel", {
+	local SliderDisplay = New("TextBox", {
 		FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Medium),
 		TextSize = 15,
+		BackgroundTransparency = 1,
+		ClearTextOnFocus = false,
 		TextXAlignment = Enum.TextXAlignment.Right,
 		Size = UDim2.new(0, 110, 1, 0),
 		Position = UDim2.fromScale(1, 0),
@@ -127,6 +129,15 @@ function Element:New(Idx, Config)
 		then
 			UpdateFromInput(Input)
 		end
+	end)
+
+	-- Click the value to type one; the suffix is optional and out-of-range numbers are clamped.
+	Creator.AddSignal(SliderDisplay.Focused, function()
+		SliderDisplay.Text = tostring(Slider.Value)
+	end)
+	Creator.AddSignal(SliderDisplay.FocusLost, function()
+		local Number = tonumber((SliderDisplay.Text:gsub("[^%d%.%-]", "")))
+		Slider:SetValue(Number or Slider.Value)
 	end)
 
 	function Slider:OnChanged(Func)
