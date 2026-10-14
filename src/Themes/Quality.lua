@@ -1,6 +1,7 @@
 return {
 	Name = "Quality",
 	Accent = Color3.fromRGB(240, 240, 240),
+	Glow = Color3.fromRGB(255, 255, 255),
 
 	Background = Color3.fromRGB(13, 13, 13),
 	WindowBorder = Color3.fromRGB(34, 34, 34),

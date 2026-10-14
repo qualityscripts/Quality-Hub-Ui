@@ -8,6 +8,7 @@ local Window = Fluent:CreateWindow({
     TabWidth = 220,
     Size = UDim2.fromOffset(880, 600),
     HideName = true, -- masks your username in the sidebar profile
+    Image = "", -- open/close button image: asset id ("rbxassetid://123" or "123"); empty shows the hub initials
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 

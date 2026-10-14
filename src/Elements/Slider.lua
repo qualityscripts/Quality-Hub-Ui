@@ -46,8 +46,14 @@ function Element:New(Idx, Config)
 		ThemeTag = { TextColor3 = "TabText" },
 	})
 
+	local GlowSpread = 10
+	local SliderGlow = Creator.Glow({
+		Position = UDim2.fromOffset(-GlowSpread, -GlowSpread),
+	})
+
 	local SliderFill = New("Frame", {
 		Size = UDim2.fromScale(0, 1),
+		ZIndex = 2,
 		ThemeTag = { BackgroundColor3 = "Accent" },
 	}, {
 		New("UICorner", { CornerRadius = UDim.new(1, 0) }),
@@ -57,7 +63,7 @@ function Element:New(Idx, Config)
 		Size = UDim2.fromOffset(16, 16),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0, 0.5),
-		ZIndex = 2,
+		ZIndex = 3,
 		ThemeTag = { BackgroundColor3 = "Accent" },
 	}, {
 		New("UICorner", { CornerRadius = UDim.new(1, 0) }),
@@ -70,6 +76,7 @@ function Element:New(Idx, Config)
 		ThemeTag = { BackgroundColor3 = "SliderRail" },
 	}, {
 		New("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		SliderGlow,
 		SliderFill,
 		SliderDot,
 	})
@@ -132,6 +139,7 @@ function Element:New(Idx, Config)
 		local Scale = (self.Value - Slider.Min) / (Slider.Max - Slider.Min)
 		SliderDot.Position = UDim2.fromScale(Scale, 0.5)
 		SliderFill.Size = UDim2.fromScale(Scale, 1)
+		SliderGlow.Size = UDim2.new(Scale, GlowSpread * 2 + 8, 1, GlowSpread * 2)
 
 		local Text = Slider.Rounding > 0 and string.format("%." .. Slider.Rounding .. "f", self.Value)
 			or tostring(self.Value)

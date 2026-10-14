@@ -34,6 +34,7 @@ local Library = {
 	Unloaded = false,
 
 	Theme = "Quality",
+	ThemeOverrides = {},
 	DialogOpen = false,
 	UseAcrylic = false,
 	Acrylic = false,
@@ -126,6 +127,7 @@ function Library:CreateWindow(Config)
 		SubTitle = Config.SubTitle,
 		TabWidth = Config.TabWidth or 220,
 		HideName = Config.HideName,
+		Image = Config.Image,
 	})
 
 	Library.Window = Window
@@ -139,6 +141,21 @@ function Library:SetTheme(Value)
 		Library.Theme = Value
 		Creator.UpdateTheme()
 	end
+end
+
+-- Overrides one theme color (e.g. "Accent", "Glow", "Background") on top of the active theme.
+function Library:SetThemeColor(Key, Color)
+	Library.ThemeOverrides[Key] = Color
+	Creator.UpdateTheme()
+end
+
+function Library:GetThemeColor(Key)
+	return Creator.GetThemeProperty(Key)
+end
+
+function Library:ResetThemeColors()
+	table.clear(Library.ThemeOverrides)
+	Creator.UpdateTheme()
 end
 
 function Library:Destroy()

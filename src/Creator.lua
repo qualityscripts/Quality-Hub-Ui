@@ -85,6 +85,10 @@ function Creator.Disconnect()
 end
 
 function Creator.GetThemeProperty(Property)
+	local Overrides = require(Root).ThemeOverrides
+	if Overrides and Overrides[Property] ~= nil then
+		return Overrides[Property]
+	end
 	if Themes[require(Root).Theme][Property] then
 		return Themes[require(Root).Theme][Property]
 	end
@@ -143,6 +147,23 @@ function Creator.New(Name, Properties, Children)
 
 	ApplyCustomProps(Object, Properties)
 	return Object
+end
+
+-- Soft halo drawn behind an element; must be a sibling with lower ZIndex since children render above parents.
+function Creator.Glow(Props)
+	local Glow = Creator.New("ImageLabel", {
+		Image = "rbxassetid://5554236805",
+		ScaleType = Enum.ScaleType.Slice,
+		SliceCenter = Rect.new(23, 23, 277, 277),
+		SliceScale = 0.45,
+		ImageTransparency = 0.6,
+		ZIndex = 1,
+		ThemeTag = { ImageColor3 = "Glow" },
+	})
+	for Name, Value in next, Props or {} do
+		Glow[Name] = Value
+	end
+	return Glow
 end
 
 function Creator.SpringMotor(Initial, Instance, Prop, IgnoreDialogCheck, ResetOnThemeChange)

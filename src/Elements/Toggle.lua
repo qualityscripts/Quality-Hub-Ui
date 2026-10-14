@@ -35,6 +35,7 @@ function Element:New(Idx, Config)
 		Position = UDim2.fromScale(0.5, 0.5),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		ImageTransparency = 1,
+		ZIndex = 3,
 		ThemeTag = { ImageColor3 = "CheckboxCheck" },
 	})
 
@@ -43,10 +44,19 @@ function Element:New(Idx, Config)
 		ThemeTag = { Color = "CheckboxBorder" },
 	})
 
+	local BoxGlow = Creator.Glow({
+		Size = UDim2.fromOffset(42, 42),
+		Position = UDim2.new(0, 11, 0.5, 0),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		ImageTransparency = 1,
+		Parent = ToggleFrame.Header,
+	})
+
 	local Box = New("Frame", {
 		Size = UDim2.fromOffset(22, 22),
 		Position = UDim2.new(0, 0, 0.5, 0),
 		AnchorPoint = Vector2.new(0, 0.5),
+		ZIndex = 2,
 		Parent = ToggleFrame.Header,
 		ThemeTag = { BackgroundColor3 = "CheckboxBg" },
 	}, {
@@ -67,6 +77,7 @@ function Element:New(Idx, Config)
 		Creator.OverrideTag(Box, { BackgroundColor3 = Value and "Accent" or "CheckboxBg" })
 		Creator.OverrideTag(BoxStroke, { Color = Value and "Accent" or "CheckboxBorder" })
 		TweenService:Create(Check, TweenFast, { ImageTransparency = Value and 0 or 1 }):Play()
+		TweenService:Create(BoxGlow, TweenFast, { ImageTransparency = Value and 0.6 or 1 }):Play()
 
 		Library:SafeCallback(Toggle.Callback, Toggle.Value)
 		Library:SafeCallback(Toggle.Changed, Toggle.Value)

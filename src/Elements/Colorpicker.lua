@@ -7,6 +7,13 @@ local RenderStepped = RunService.RenderStepped
 local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 
+local function PointerPos(Input)
+	if Input.UserInputType == Enum.UserInputType.Touch then
+		return Input.Position.X, Input.Position.Y
+	end
+	return Mouse.X, Mouse.Y
+end
+
 local Root = script.Parent.Parent
 local Creator = require(Root.Creator)
 
@@ -404,14 +411,15 @@ function Element:New(Idx, Config)
 				Input.UserInputType == Enum.UserInputType.MouseButton1
 				or Input.UserInputType == Enum.UserInputType.Touch
 			then
-				while UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+				while Input.UserInputState ~= Enum.UserInputState.End do
+					local PX, PY = PointerPos(Input)
 					local MinX = SatVibMap.AbsolutePosition.X
 					local MaxX = MinX + SatVibMap.AbsoluteSize.X
-					local MouseX = math.clamp(Mouse.X, MinX, MaxX)
+					local MouseX = math.clamp(PX, MinX, MaxX)
 
 					local MinY = SatVibMap.AbsolutePosition.Y
 					local MaxY = MinY + SatVibMap.AbsoluteSize.Y
-					local MouseY = math.clamp(Mouse.Y, MinY, MaxY)
+					local MouseY = math.clamp(PY, MinY, MaxY)
 
 					Sat = (MouseX - MinX) / (MaxX - MinX)
 					Vib = 1 - ((MouseY - MinY) / (MaxY - MinY))
@@ -427,10 +435,11 @@ function Element:New(Idx, Config)
 				Input.UserInputType == Enum.UserInputType.MouseButton1
 				or Input.UserInputType == Enum.UserInputType.Touch
 			then
-				while UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+				while Input.UserInputState ~= Enum.UserInputState.End do
+					local PX, PY = PointerPos(Input)
 					local MinY = HueSlider.AbsolutePosition.Y
 					local MaxY = MinY + HueSlider.AbsoluteSize.Y
-					local MouseY = math.clamp(Mouse.Y, MinY, MaxY)
+					local MouseY = math.clamp(PY, MinY, MaxY)
 
 					Hue = ((MouseY - MinY) / (MaxY - MinY))
 					Display()
@@ -442,11 +451,12 @@ function Element:New(Idx, Config)
 
 		if Config.Transparency then
 			Creator.AddSignal(TransparencySlider.InputBegan, function(Input)
-				if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-					while UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+				if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+					while Input.UserInputState ~= Enum.UserInputState.End do
+					local PX, PY = PointerPos(Input)
 						local MinY = TransparencySlider.AbsolutePosition.Y
 						local MaxY = MinY + TransparencySlider.AbsoluteSize.Y
-						local MouseY = math.clamp(Mouse.Y, MinY, MaxY)
+						local MouseY = math.clamp(PY, MinY, MaxY)
 
 						Transparency = 1 - ((MouseY - MinY) / (MaxY - MinY))
 						Display()

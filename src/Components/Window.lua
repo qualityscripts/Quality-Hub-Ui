@@ -24,6 +24,14 @@ end
 return function(Config)
 	local Library = require(Root)
 	local LocalPlayer = Players.LocalPlayer
+	local IsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+
+	-- Shrinks the whole window on screens smaller than its design size (phones/tablets).
+	local function FitScale(Size)
+		local Viewport = Camera.ViewportSize
+		return math.min(1, (Viewport.X - 24) / Size.X.Offset, (Viewport.Y - 24) / Size.Y.Offset)
+	end
+	local Scale = FitScale(Config.Size)
 
 	local Window = {
 		Minimized = false,
@@ -34,8 +42,8 @@ return function(Config)
 		LayoutCounter = 0,
 		SearchQuery = "",
 		Position = UDim2.fromOffset(
-			Camera.ViewportSize.X / 2 - Config.Size.X.Offset / 2,
-			Camera.ViewportSize.Y / 2 - Config.Size.Y.Offset / 2
+			Camera.ViewportSize.X / 2 - Config.Size.X.Offset * Scale / 2,
+			Camera.ViewportSize.Y / 2 - Config.Size.Y.Offset * Scale / 2
 		),
 	}
 
@@ -293,10 +301,15 @@ return function(Config)
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 			ThemeTag = { Color = "WindowBorder" },
 		}),
+		New("UIScale", { Name = "FitScale", Scale = Scale }),
 		Sidebar,
 		Main,
 		ResizeStartFrame,
 	})
+
+	Creator.AddSignal(Camera:GetPropertyChangedSignal("ViewportSize"), function()
+		Window.Root.FitScale.Scale = FitScale(Window.Size)
+	end)
 
 	-- Kept for compatibility with code expecting Window.TitleBar.Frame
 	Window.TitleBar = { Frame = TopBar }
@@ -437,7 +450,7 @@ return function(Config)
 			(Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch)
 			and Resizing
 		then
-			local Delta = Input.Position - ResizePos
+			local Delta = (Input.Position - ResizePos) / Window.Root.FitScale.Scale
 			local StartSize = Window.Size
 
 			local TargetSize = Vector3.new(StartSize.X.Offset, StartSize.Y.Offset, 0) + Vector3.new(1, 1, 0) * Delta
@@ -472,15 +485,121 @@ return function(Config)
 		end
 	end)
 
+	-- Floating open/close button --------------------------------------------
+
+	local ButtonImage = Config.Image
+	if type(ButtonImage) == "number" or (type(ButtonImage) == "string" and ButtonImage:match("^%d+$")) then
+		ButtonImage = "rbxassetid://" .. ButtonImage
+	elseif type(ButtonImage) == "string" and Library:GetIcon(ButtonImage) then
+		ButtonImage = Library:GetIcon(ButtonImage)
+	end
+	local HasImage = type(ButtonImage) == "string" and ButtonImage ~= ""
+
+	local Initials = ""
+	for Word in tostring(Config.Title):gmatch("%w+") do
+		Initials = Initials .. Word:sub(1, 1):upper()
+	end
+
+	local ToggleButton = New("ImageButton", {
+		Size = UDim2.fromOffset(52, 52),
+		Position = UDim2.new(0, 24, 0.5, -26),
+		Visible = IsMobile,
+		ZIndex = 50,
+		Parent = Config.Parent,
+		ThemeTag = { BackgroundColor3 = "Background" },
+	}, {
+		New("UICorner", { CornerRadius = UDim.new(0, 12) }),
+		New("UIStroke", {
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Thickness = 1.5,
+			ThemeTag = { Color = "WindowBorder" },
+		}),
+		New("ImageLabel", {
+			Image = HasImage and ButtonImage or "",
+			Visible = HasImage,
+			Size = UDim2.new(1, -14, 1, -14),
+			Position = UDim2.fromScale(0.5, 0.5),
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			ScaleType = Enum.ScaleType.Fit,
+			ZIndex = 51,
+		}, {
+			New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+		}),
+		New("TextLabel", {
+			Text = Initials:sub(1, 2),
+			Visible = not HasImage,
+			FontFace = F(Enum.FontWeight.Bold),
+			TextSize = 20,
+			Size = UDim2.fromScale(1, 1),
+			ZIndex = 51,
+			ThemeTag = { TextColor3 = "Text" },
+		}),
+	})
+	Window.ToggleButton = ToggleButton
+
+	local BtnDragging, BtnMoved, BtnStart, BtnStartPos, BtnInput = false, false
+	Creator.AddSignal(ToggleButton.InputBegan, function(Input)
+		if
+			Input.UserInputType == Enum.UserInputType.MouseButton1
+			or Input.UserInputType == Enum.UserInputType.Touch
+		then
+			BtnDragging, BtnMoved = true, false
+			BtnStart, BtnStartPos, BtnInput = Input.Position, ToggleButton.Position, Input
+		end
+	end)
+	Creator.AddSignal(UserInputService.InputChanged, function(Input)
+		if not BtnDragging then
+			return
+		end
+		if
+			Input.UserInputType == Enum.UserInputType.MouseMovement
+			or (Input.UserInputType == Enum.UserInputType.Touch and Input == BtnInput)
+		then
+			local Delta = Input.Position - BtnStart
+			if Delta.Magnitude > 6 then
+				BtnMoved = true
+			end
+			if BtnMoved then
+				ToggleButton.Position = UDim2.new(
+					BtnStartPos.X.Scale,
+					BtnStartPos.X.Offset + Delta.X,
+					BtnStartPos.Y.Scale,
+					BtnStartPos.Y.Offset + Delta.Y
+				)
+			end
+		end
+	end)
+	Creator.AddSignal(UserInputService.InputEnded, function(Input)
+		if
+			BtnDragging
+			and (
+				Input.UserInputType == Enum.UserInputType.MouseButton1
+				or (Input.UserInputType == Enum.UserInputType.Touch and Input == BtnInput)
+			)
+		then
+			BtnDragging = false
+			if not BtnMoved then
+				Window:Minimize()
+			end
+		end
+	end)
+
 	function Window:Minimize()
 		Window.Minimized = not Window.Minimized
 		Window.Root.Visible = not Window.Minimized
-		if not MinimizeNotif then
+		ToggleButton.Visible = true
+		if not MinimizeNotif and Window.Minimized then
 			MinimizeNotif = true
-			local Key = Library.MinimizeKeybind and Library.MinimizeKeybind.Value or Library.MinimizeKey.Name
+			local Content
+			if IsMobile then
+				Content = "Tap the button to open the interface."
+			else
+				local Key = Library.MinimizeKeybind and Library.MinimizeKeybind.Value or Library.MinimizeKey.Name
+				Content = "Press " .. Key .. " or click the button to toggle the interface."
+			end
 			Library:Notify({
 				Title = "Interface",
-				Content = "Press " .. Key .. " to toggle the interface.",
+				Content = Content,
 				Duration = 6,
 			})
 		end
