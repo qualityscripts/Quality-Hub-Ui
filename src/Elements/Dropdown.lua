@@ -35,7 +35,7 @@ function Element:New(Idx, Config)
 	local DropdownDisplay = New("TextLabel", {
 		FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.SemiBold),
 		Text = "Value",
-		TextSize = 16,
+		TextSize = 15,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Size = UDim2.new(1, -46, 0, 18),
 		Position = UDim2.new(0, 16, 0.5, 0),

@@ -52,7 +52,7 @@ return function(Config)
 		New("TextLabel", {
 			Text = Config.Title,
 			FontFace = F(Enum.FontWeight.Bold),
-			TextSize = 22,
+			TextSize = 21,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			Size = UDim2.new(1, -36, 0, 24),
 			Position = UDim2.fromOffset(20, 18),
@@ -148,7 +148,7 @@ return function(Config)
 		RichText = true,
 		Text = "",
 		FontFace = F(Enum.FontWeight.Bold),
-		TextSize = 17,
+		TextSize = 16,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Size = UDim2.new(1, -300, 1, 0),
@@ -566,7 +566,7 @@ return function(Config)
 			New("TextLabel", {
 				Text = Title,
 				FontFace = F(Enum.FontWeight.SemiBold),
-				TextSize = 14,
+				TextSize = 13,
 				TextXAlignment = Enum.TextXAlignment.Left,
 				Size = UDim2.new(1, -40, 1, 0),
 				Position = UDim2.fromOffset(20, 0),

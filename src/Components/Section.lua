@@ -40,7 +40,7 @@ return function(Title, Icon, Parent)
 			Text = Title,
 			RichText = true,
 			FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Bold),
-			TextSize = 17,
+			TextSize = 16,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextTruncate = Enum.TextTruncate.AtEnd,
 			Size = UDim2.new(1, Icon and -84 or -58, 1, 0),

@@ -9,7 +9,7 @@ return function(Title, Desc, Parent)
 	Element.TitleLabel = New("TextLabel", {
 		FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.SemiBold),
 		Text = Title,
-		TextSize = 16,
+		TextSize = 15,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Size = UDim2.new(1, 0, 1, 0),
@@ -35,7 +35,7 @@ return function(Title, Desc, Parent)
 	Element.DescLabel = New("TextLabel", {
 		FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Medium),
 		Text = Desc or "",
-		TextSize = 14,
+		TextSize = 13,
 		TextWrapped = true,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		AutomaticSize = Enum.AutomaticSize.Y,

@@ -65,7 +65,7 @@ function TabModule:New(Title, Icon, Parent, Category)
 		Text = Title,
 		RichText = true,
 		FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.SemiBold),
-		TextSize = 16,
+		TextSize = 15,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Size = UDim2.new(1, Icon and -56 or -30, 1, 0),

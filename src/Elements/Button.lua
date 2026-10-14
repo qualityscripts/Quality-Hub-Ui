@@ -19,7 +19,7 @@ function Element:New(Config)
 		Size = UDim2.new(1, 0, 0, 38),
 		Text = Config.Title,
 		FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.SemiBold),
-		TextSize = 16,
+		TextSize = 15,
 		Parent = ButtonFrame:UseControl(),
 		ThemeTag = {
 			BackgroundColor3 = "ControlBg",

@@ -5,8 +5,8 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 local Window = Fluent:CreateWindow({
     Title = "Quality Hub",
     SubTitle = "v1.0",
-    TabWidth = 210,
-    Size = UDim2.fromOffset(780, 520),
+    TabWidth = 220,
+    Size = UDim2.fromOffset(880, 600),
     HideName = true, -- masks your username in the sidebar profile
     MinimizeKey = Enum.KeyCode.LeftControl
 })

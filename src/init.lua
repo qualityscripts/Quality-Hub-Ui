@@ -121,10 +121,10 @@ function Library:CreateWindow(Config)
 
 	local Window = require(Components.Window)({
 		Parent = GUI,
-		Size = Config.Size or UDim2.fromOffset(780, 520),
+		Size = Config.Size or UDim2.fromOffset(880, 600),
 		Title = Config.Title,
 		SubTitle = Config.SubTitle,
-		TabWidth = Config.TabWidth or 210,
+		TabWidth = Config.TabWidth or 220,
 		HideName = Config.HideName,
 	})
 
