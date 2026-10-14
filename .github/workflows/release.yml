@@ -15,26 +15,21 @@ jobs:
 
     steps:
     - name: GitHub Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
-    - name: Setup PNPM
-      uses: pnpm/action-setup@v2.2.4
-      with:
-        version: 7.25.1
-        run_install: true
-    
     - name: Setup Aftman
       uses: ok-nick/setup-aftman@v0.3.0
-    
+
     - name: Install Rojo, Lune and DarkLua
-      run: aftman install
-        
+      run: aftman install --no-trust-check
+
     - name: Build and Compile
       run: |
-        pnpm run rojo --verbose
-      
+        mkdir -p dist
+        rojo build -o dist/main.rbxm
+
     - name: Bundle Luau
-      run: pnpm run bundle
+      run: lune build
       
     - name: Upload Release Assets
       uses: alexellis/upload-assets@0.4.0
