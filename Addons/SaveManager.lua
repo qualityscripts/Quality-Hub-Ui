@@ -129,7 +129,8 @@ local SaveManager = {} do
 		self:SetIgnoreIndexes({ 
 			"InterfaceTheme", "AcrylicToggle", "TransparentToggle", "MenuKeybind",
 			"Color_Accent", "Color_Glow", "Color_Background", "Color_SectionBg", "Color_ControlBg",
-			"Color_ControlBorder", "Color_TabSelected", "Color_Text", "Color_SubText"
+			"Color_ControlBorder", "Color_TabSelected", "Color_Text", "Color_SubText",
+			"InterfaceManager_ThemeName", "InterfaceManager_ThemeList"
 		})
 	end
 

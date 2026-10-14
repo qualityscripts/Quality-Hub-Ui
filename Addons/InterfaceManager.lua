@@ -143,7 +143,8 @@ local InterfaceManager = {} do
 
 		local section = tab:AddSection({ Title = "Customize", Icon = "palette" })
 		local Pickers = {}
-		local Ready = false
+		InterfaceManager.Pickers = Pickers
+		InterfaceManager.ColorsReady = false
 
 		for _, Option in ipairs(InterfaceManager.ColorOptions) do
 			Pickers[Option.Key] = section:AddColorpicker("Color_" .. Option.Key, {
@@ -151,7 +152,7 @@ local InterfaceManager = {} do
 				Description = Option.Description,
 				Default = Library:GetThemeColor(Option.Key),
 				Callback = function(Color)
-					if not Ready then
+					if not InterfaceManager.ColorsReady then
 						return
 					end
 					Library:SetThemeColor(Option.Key, Color)
@@ -165,18 +166,164 @@ local InterfaceManager = {} do
 			Title = "Reset Colors",
 			Description = "Puts every color back to the theme default.",
 			Callback = function()
-				Ready = false
-				Library:ResetThemeColors()
-				Settings.Colors = {}
-				InterfaceManager:SaveSettings()
-				for Key, Picker in next, Pickers do
-					Picker:SetValueRGB(Library:GetThemeColor(Key))
-				end
-				Ready = true
+				InterfaceManager:ApplyColors({})
 			end,
 		})
 
-		Ready = true
+		InterfaceManager.ColorsReady = true
+
+		InterfaceManager:BuildThemeListSection(tab)
+	end
+
+	-- Replaces all custom colors with the given { Key = hex } map, updates pickers and saves.
+	function InterfaceManager:ApplyColors(Colors)
+		local Library = self.Library
+		InterfaceManager.ColorsReady = false
+		Library:ResetThemeColors()
+		InterfaceManager.Settings.Colors = {}
+		for Key, Hex in next, Colors do
+			local Ok, Color = pcall(Color3.fromHex, Hex)
+			if Ok then
+				Library:SetThemeColor(Key, Color)
+				InterfaceManager.Settings.Colors[Key] = Hex
+			end
+		end
+		InterfaceManager:SaveSettings()
+		for Key, Picker in next, InterfaceManager.Pickers or {} do
+			Picker:SetValueRGB(Library:GetThemeColor(Key))
+		end
+		InterfaceManager.ColorsReady = true
+	end
+
+	function InterfaceManager:ThemesFolder()
+		local Path = self.Folder .. "/themes"
+		if not isfolder(self.Folder) then
+			makefolder(self.Folder)
+		end
+		if not isfolder(Path) then
+			makefolder(Path)
+		end
+		return Path
+	end
+
+	function InterfaceManager:SaveTheme(Name)
+		local Library = self.Library
+		local Colors = {}
+		for _, Option in ipairs(InterfaceManager.ColorOptions) do
+			Colors[Option.Key] = Library:GetThemeColor(Option.Key):ToHex()
+		end
+		local Ok, Err = pcall(writefile, self:ThemesFolder() .. "/" .. Name .. ".json", httpService:JSONEncode({ Colors = Colors }))
+		return Ok, Err
+	end
+
+	function InterfaceManager:LoadTheme(Name)
+		local Path = self:ThemesFolder() .. "/" .. tostring(Name) .. ".json"
+		if not Name or not isfile(Path) then
+			return false, "theme not found"
+		end
+		local Ok, Data = pcall(httpService.JSONDecode, httpService, readfile(Path))
+		if not Ok or type(Data) ~= "table" or type(Data.Colors) ~= "table" then
+			return false, "invalid theme file"
+		end
+		InterfaceManager:ApplyColors(Data.Colors)
+		return true
+	end
+
+	function InterfaceManager:RefreshThemeList()
+		local Out = {}
+		for _, File in ipairs(listfiles(self:ThemesFolder())) do
+			local Name = File:match("([^/\\]+)%.json$")
+			if Name then
+				table.insert(Out, Name)
+			end
+		end
+		return Out
+	end
+
+	function InterfaceManager:BuildThemeListSection(tab)
+		local Library = self.Library
+		local Options = Library.Options
+
+		local function Notify(Text)
+			Library:Notify({ Title = "Interface", Content = "Themes", SubContent = Text, Duration = 6 })
+		end
+
+		local section = tab:AddSection({ Title = "Saved Themes", Icon = "palette" })
+
+		section:AddInput("InterfaceManager_ThemeName", { Title = "Theme name", Placeholder = "My theme" })
+		section:AddDropdown("InterfaceManager_ThemeList", {
+			Title = "Theme list",
+			Values = self:RefreshThemeList(),
+			AllowNull = true,
+		})
+
+		local function RefreshList()
+			Options.InterfaceManager_ThemeList:SetValues(self:RefreshThemeList())
+			Options.InterfaceManager_ThemeList:SetValue(nil)
+		end
+
+		section:AddButton({
+			Title = "Create theme",
+			Description = "Saves your current colors as a new theme.",
+			Callback = function()
+				local Name = Options.InterfaceManager_ThemeName.Value
+				if Name:gsub(" ", "") == "" then
+					return Notify("Invalid theme name (empty)")
+				end
+				if Name:find("[/\\]") then
+					return Notify("Theme name can't contain slashes")
+				end
+				local Ok, Err = self:SaveTheme(Name)
+				if not Ok then
+					return Notify("Failed to save theme: " .. tostring(Err))
+				end
+				Notify(string.format("Created theme %q", Name))
+				RefreshList()
+			end,
+		})
+
+		section:AddButton({
+			Title = "Load theme",
+			Callback = function()
+				local Name = Options.InterfaceManager_ThemeList.Value
+				local Ok, Err = self:LoadTheme(Name)
+				if not Ok then
+					return Notify("Failed to load theme: " .. tostring(Err))
+				end
+				Notify(string.format("Loaded theme %q", Name))
+			end,
+		})
+
+		section:AddButton({
+			Title = "Overwrite theme",
+			Callback = function()
+				local Name = Options.InterfaceManager_ThemeList.Value
+				if not Name then
+					return Notify("Pick a theme from the list first")
+				end
+				local Ok, Err = self:SaveTheme(Name)
+				if not Ok then
+					return Notify("Failed to overwrite theme: " .. tostring(Err))
+				end
+				Notify(string.format("Overwrote theme %q", Name))
+			end,
+		})
+
+		section:AddButton({
+			Title = "Delete theme",
+			Callback = function()
+				local Name = Options.InterfaceManager_ThemeList.Value
+				local Path = self:ThemesFolder() .. "/" .. tostring(Name) .. ".json"
+				if not Name or not isfile(Path) then
+					return Notify("Pick a theme from the list first")
+				end
+				delfile(Path)
+				Notify(string.format("Deleted theme %q", Name))
+				RefreshList()
+			end,
+		})
+
+		section:AddButton({ Title = "Refresh list", Callback = RefreshList })
 	end
 end
 
