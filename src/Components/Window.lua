@@ -625,8 +625,16 @@ return function(Config)
 		})
 	end
 
+	-- Percent 0-90 makes every themed background see-through while text and icons stay solid; booleans kept for old callers.
 	function Window:SetTransparency(Value)
-		Window.Root.BackgroundTransparency = Value and 0.15 or 0
+		if type(Value) == "boolean" then
+			Value = Value and 15 or 0
+		end
+		Library.UITransparency = math.clamp(Value, 0, 90) / 100
+		Creator.UpdateTheme()
+		for _, Tab in next, require(Components.Tab).Tabs do
+			Tab.Paint()
+		end
 	end
 
 	function Window:Destroy()

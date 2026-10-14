@@ -35,6 +35,7 @@ local Library = {
 
 	Theme = "Quality",
 	ThemeOverrides = {},
+	UITransparency = 0,
 	DialogOpen = false,
 	UseAcrylic = false,
 	Acrylic = false,

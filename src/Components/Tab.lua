@@ -100,7 +100,8 @@ function TabModule:New(Title, Icon, Parent, Category)
 
 	local function Paint()
 		local Hovered = Tab.Hovered and not Tab.Selected
-		Highlight.BackgroundTransparency = Tab.Selected and 0 or (Hovered and 0.5 or 1)
+		local Surface = Library.UITransparency or 0
+		Highlight.BackgroundTransparency = Tab.Selected and Surface or (Hovered and (0.5 + Surface / 2) or 1)
 		Indicator.BackgroundTransparency = Tab.Selected and 0 or 1
 		local Color = Tab.Selected and "Text" or "TabText"
 		Creator.OverrideTag(Label, { TextColor3 = Color })

@@ -96,9 +96,13 @@ function Creator.GetThemeProperty(Property)
 end
 
 function Creator.UpdateTheme()
+	local SurfaceTransparency = require(Root).UITransparency or 0
 	for Instance, Object in next, Creator.Registry do
 		for Property, ColorIdx in next, Object.Properties do
 			Instance[Property] = Creator.GetThemeProperty(ColorIdx)
+		end
+		if Object.Surface then
+			Instance.BackgroundTransparency = Object.Properties.BackgroundColor3 == "Accent" and 0 or SurfaceTransparency
 		end
 	end
 
@@ -113,6 +117,10 @@ function Creator.AddThemeObject(Object, Properties)
 		Object = Object,
 		Properties = Properties,
 		Idx = Idx,
+		-- Solid themed backgrounds follow the UI Transparency setting; ones that start hidden (hover/selection) manage their own.
+		Surface = Properties.BackgroundColor3 ~= nil
+			and Object:IsA("GuiObject")
+			and Object.BackgroundTransparency == 0,
 	}
 
 	Creator.Registry[Object] = Data

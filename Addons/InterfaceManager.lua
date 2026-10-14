@@ -4,7 +4,6 @@ local InterfaceManager = {} do
 	InterfaceManager.Folder = "FluentSettings"
     InterfaceManager.Settings = {
         Acrylic = false,
-        Transparency = false,
         MenuKeybind = "LeftControl",
         UIScale = 100
     }
@@ -91,14 +90,18 @@ local InterfaceManager = {} do
 			})
 		end
 	
-		section:AddToggle("TransparentToggle", {
-			Title = "Transparency",
-			Description = "Makes the interface transparent.",
-			Default = Settings.Transparency,
+		section:AddSlider("InterfaceTransparency", {
+			Title = "Ui Transparency",
+			Description = "Makes the whole interface see-through.",
+			Default = Settings.UITransparency or 50,
+			Min = 0,
+			Max = 90,
+			Rounding = 0,
+			Suffix = "%",
 			Callback = function(Value)
 				Library:ToggleTransparency(Value)
-				Settings.Transparency = Value
-                InterfaceManager:SaveSettings()
+				Settings.UITransparency = Value
+				InterfaceManager:SaveSettings()
 			end
 		})
 	
