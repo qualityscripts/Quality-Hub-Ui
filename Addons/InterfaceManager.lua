@@ -132,6 +132,7 @@ local InterfaceManager = {} do
 		{ Key = "Accent", Title = "Accent Color", Description = "Checkboxes, slider fill and the tab indicator." },
 		{ Key = "Glow", Title = "Glow Color", Description = "The glow around sliders and checkboxes." },
 		{ Key = "Background", Title = "Background Color", Description = "Main window background." },
+		{ Key = "UIOutline", Title = "Ui Outline Color", Description = "Outline around the whole window." },
 		{ Key = "SectionBg", Title = "Section Color", Description = "Background of the section cards." },
 		{ Key = "ControlBg", Title = "Button Color", Description = "Buttons, dropdowns and inputs." },
 		{ Key = "ControlBorder", Title = "Button Border Color", Description = "Outline of buttons and dropdowns." },

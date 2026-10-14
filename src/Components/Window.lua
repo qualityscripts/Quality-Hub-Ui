@@ -299,7 +299,8 @@ return function(Config)
 		New("UICorner", { CornerRadius = UDim.new(0, 10) }),
 		New("UIStroke", {
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			ThemeTag = { Color = "WindowBorder" },
+			Thickness = 2,
+			ThemeTag = { Color = "UIOutline" },
 		}),
 		New("UIScale", { Name = "FitScale", Scale = Scale }),
 		Sidebar,
@@ -516,7 +517,7 @@ return function(Config)
 		New("UIStroke", {
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 			Thickness = 1.5,
-			ThemeTag = { Color = "WindowBorder" },
+			ThemeTag = { Color = "UIOutline" },
 		}),
 		New("ImageLabel", {
 			Image = HasImage and ButtonImage or "",
