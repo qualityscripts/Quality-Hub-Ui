@@ -3,7 +3,6 @@ local httpService = game:GetService("HttpService")
 local InterfaceManager = {} do
 	InterfaceManager.Folder = "FluentSettings"
     InterfaceManager.Settings = {
-        Theme = "Quality",
         Acrylic = false,
         Transparency = false,
         MenuKeybind = "LeftControl",
@@ -54,6 +53,9 @@ local InterfaceManager = {} do
                 end
             end
         end
+        -- Theme and colors are only kept through saved themes, never auto-saved; drop values older versions wrote.
+        InterfaceManager.Settings.Theme = nil
+        InterfaceManager.Settings.Colors = nil
     end
 
     function InterfaceManager:BuildInterfaceSection(tab)
@@ -69,15 +71,12 @@ local InterfaceManager = {} do
 			Title = "Theme",
 			Description = "Changes the interface theme.",
 			Values = Library.Themes,
-			Default = Settings.Theme,
+			Default = Library.Theme,
 			Callback = function(Value)
 				Library:SetTheme(Value)
-                Settings.Theme = Value
-                InterfaceManager:SaveSettings()
 			end
 		})
-
-        InterfaceTheme:SetValue(Settings.Theme)
+		InterfaceManager.ThemeDropdown = InterfaceTheme
 	
 		if Library.UseAcrylic then
 			section:AddToggle("AcrylicToggle", {
@@ -141,22 +140,8 @@ local InterfaceManager = {} do
 		{ Key = "SubText", Title = "Description Color", Description = "Grey description text." },
 	}
 
-	function InterfaceManager:ApplySavedColors()
-		local Library = self.Library
-		for Key, Hex in next, InterfaceManager.Settings.Colors or {} do
-			local Ok, Color = pcall(Color3.fromHex, Hex)
-			if Ok then
-				Library:SetThemeColor(Key, Color)
-			end
-		end
-	end
-
 	function InterfaceManager:BuildCustomizeSection(tab)
 		local Library = self.Library
-		local Settings = InterfaceManager.Settings
-		Settings.Colors = Settings.Colors or {}
-
-		InterfaceManager:ApplySavedColors()
 
 		local section = tab:AddSection({ Title = "Customize", Icon = "palette" })
 		local Pickers = {}
@@ -173,8 +158,6 @@ local InterfaceManager = {} do
 						return
 					end
 					Library:SetThemeColor(Option.Key, Color)
-					Settings.Colors[Option.Key] = Color:ToHex()
-					InterfaceManager:SaveSettings()
 				end,
 			})
 		end
@@ -192,20 +175,17 @@ local InterfaceManager = {} do
 		InterfaceManager:BuildThemeListSection(tab)
 	end
 
-	-- Replaces all custom colors with the given { Key = hex } map, updates pickers and saves.
+	-- Replaces all custom colors with the given { Key = hex } map and updates the pickers (nothing is written to disk).
 	function InterfaceManager:ApplyColors(Colors)
 		local Library = self.Library
 		InterfaceManager.ColorsReady = false
 		Library:ResetThemeColors()
-		InterfaceManager.Settings.Colors = {}
 		for Key, Hex in next, Colors do
 			local Ok, Color = pcall(Color3.fromHex, Hex)
 			if Ok then
 				Library:SetThemeColor(Key, Color)
-				InterfaceManager.Settings.Colors[Key] = Hex
 			end
 		end
-		InterfaceManager:SaveSettings()
 		for Key, Picker in next, InterfaceManager.Pickers or {} do
 			Picker:SetValueRGB(Library:GetThemeColor(Key))
 		end
@@ -229,7 +209,7 @@ local InterfaceManager = {} do
 		for _, Option in ipairs(InterfaceManager.ColorOptions) do
 			Colors[Option.Key] = Library:GetThemeColor(Option.Key):ToHex()
 		end
-		local Ok, Err = pcall(writefile, self:ThemesFolder() .. "/" .. Name .. ".json", httpService:JSONEncode({ Colors = Colors }))
+		local Ok, Err = pcall(writefile, self:ThemesFolder() .. "/" .. Name .. ".json", httpService:JSONEncode({ Theme = Library.Theme, Colors = Colors }))
 		return Ok, Err
 	end
 
@@ -241,6 +221,9 @@ local InterfaceManager = {} do
 		local Ok, Data = pcall(httpService.JSONDecode, httpService, readfile(Path))
 		if not Ok or type(Data) ~= "table" or type(Data.Colors) ~= "table" then
 			return false, "invalid theme file"
+		end
+		if type(Data.Theme) == "string" and table.find(self.Library.Themes, Data.Theme) and InterfaceManager.ThemeDropdown then
+			InterfaceManager.ThemeDropdown:SetValue(Data.Theme)
 		end
 		InterfaceManager:ApplyColors(Data.Colors)
 		return true
