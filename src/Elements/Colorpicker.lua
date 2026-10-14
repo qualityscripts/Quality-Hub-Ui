@@ -85,6 +85,8 @@ function Element:New(Idx, Config)
 
 		local Hue, Sat, Vib = Colorpicker.Hue, Colorpicker.Sat, Colorpicker.Vib
 		local Transparency = Colorpicker.Transparency
+		local OriginalHue, OriginalSat, OriginalVib = Hue, Sat, Vib
+		local OriginalTransparency = Transparency
 
 		local function CreateInput()
 			local Box = require(Components.Textbox)()
@@ -339,6 +341,12 @@ function Element:New(Idx, Config)
 				TransparencyDrag.Position = UDim2.new(0, -1, 1 - Transparency, -6)
 				AlphaInput.Input.Text = require(Root):Round((1 - Transparency) * 100, 0) .. "%"
 			end
+
+			-- Live preview: callers see the color immediately; Cancel restores the original.
+			local Preview = Color3.fromHSV(Hue, Sat, Vib)
+			DisplayFrameColor.BackgroundColor3 = Preview
+			Element.Library:SafeCallback(Colorpicker.Callback, Preview)
+			Element.Library:SafeCallback(Colorpicker.Changed, Preview)
 		end
 
 		Creator.AddSignal(HexInput.Input.FocusLost, function(Enter)
@@ -472,7 +480,9 @@ function Element:New(Idx, Config)
 		Dialog:Button("Done", function()
 			Colorpicker:SetValue({ Hue, Sat, Vib }, Transparency)
 		end)
-		Dialog:Button("Cancel")
+		Dialog:Button("Cancel", function()
+			Colorpicker:SetValue({ OriginalHue, OriginalSat, OriginalVib }, OriginalTransparency)
+		end)
 		Dialog:Open()
 	end
 
