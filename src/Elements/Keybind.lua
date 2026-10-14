@@ -26,13 +26,14 @@ function Element:New(Idx, Config)
 
 	local Picking = false
 
-	local KeybindFrame = require(Components.Element)(Config.Title, Config.Description, self.Container, true)
+	local KeybindFrame = require(Components.Element)(Config.Title, Config.Description, self.Container)
+	KeybindFrame.TitleLabel.Size = UDim2.new(1, -90, 1, 0)
 
 	Keybind.SetTitle = KeybindFrame.SetTitle
 	Keybind.SetDesc = KeybindFrame.SetDesc
 
 	local KeybindDisplayLabel = New("TextLabel", {
-		FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+		FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
 		Text = Config.Default,
 		TextColor3 = Color3.fromRGB(240, 240, 240),
 		TextSize = 13,
@@ -49,11 +50,10 @@ function Element:New(Idx, Config)
 	})
 
 	local KeybindDisplayFrame = New("TextButton", {
-		Size = UDim2.fromOffset(0, 30),
-		Position = UDim2.new(1, -10, 0.5, 0),
+		Size = UDim2.fromOffset(0, 26),
+		Position = UDim2.new(1, 0, 0.5, 0),
 		AnchorPoint = Vector2.new(1, 0.5),
-		BackgroundTransparency = 0.9,
-		Parent = KeybindFrame.Frame,
+		Parent = KeybindFrame.Header,
 		AutomaticSize = Enum.AutomaticSize.X,
 		ThemeTag = {
 			BackgroundColor3 = "Keybind",

@@ -33,7 +33,7 @@ local Library = {
 	WindowFrame = nil,
 	Unloaded = false,
 
-	Theme = "Dark",
+	Theme = "Quality",
 	DialogOpen = false,
 	UseAcrylic = false,
 	Acrylic = false,
@@ -115,23 +115,21 @@ function Library:CreateWindow(Config)
 	end
 
 	Library.MinimizeKey = Config.MinimizeKey or Enum.KeyCode.LeftControl
-	Library.UseAcrylic = Config.Acrylic or false
-	Library.Acrylic = Config.Acrylic or false
-	Library.Theme = Config.Theme or "Dark"
-	if Config.Acrylic then
-		Acrylic.init()
-	end
+	Library.UseAcrylic = false
+	Library.Acrylic = false
+	Library.Theme = Config.Theme or "Quality"
 
 	local Window = require(Components.Window)({
 		Parent = GUI,
-		Size = Config.Size,
+		Size = Config.Size or UDim2.fromOffset(780, 520),
 		Title = Config.Title,
 		SubTitle = Config.SubTitle,
-		TabWidth = Config.TabWidth,
+		TabWidth = Config.TabWidth or 210,
+		HideName = Config.HideName,
 	})
 
 	Library.Window = Window
-	Library:SetTheme(Config.Theme)
+	Library:SetTheme(Library.Theme)
 
 	return Window
 end
@@ -170,7 +168,7 @@ end
 
 function Library:ToggleTransparency(Value)
 	if Library.Window then
-		Library.Window.AcrylicPaint.Frame.Background.BackgroundTransparency = Value and 0.35 or 0
+		Library.Window:SetTransparency(Value)
 	end
 end
 

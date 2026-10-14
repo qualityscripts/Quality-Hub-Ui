@@ -88,7 +88,7 @@ function Creator.GetThemeProperty(Property)
 	if Themes[require(Root).Theme][Property] then
 		return Themes[require(Root).Theme][Property]
 	end
-	return Themes["Dark"][Property]
+	return Themes["Quality"][Property]
 end
 
 function Creator.UpdateTheme()

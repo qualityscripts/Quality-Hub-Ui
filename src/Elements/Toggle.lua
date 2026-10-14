@@ -9,6 +9,8 @@ local Element = {}
 Element.__index = Element
 Element.__type = "Toggle"
 
+local TweenFast = TweenInfo.new(0.15, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+
 function Element:New(Idx, Config)
 	local Library = self.Library
 	assert(Config.Title, "Toggle - Missing Title")
@@ -19,45 +21,38 @@ function Element:New(Idx, Config)
 		Type = "Toggle",
 	}
 
-	local ToggleFrame = require(Components.Element)(Config.Title, Config.Description, self.Container, true)
-	ToggleFrame.DescLabel.Size = UDim2.new(1, -54, 0, 14)
+	local ToggleFrame = require(Components.Element)(Config.Title, Config.Description, self.Container)
+	ToggleFrame.TitleLabel.Position = UDim2.fromOffset(32, 0)
+	ToggleFrame.TitleLabel.Size = UDim2.new(1, -32, 1, 0)
+	ToggleFrame.Header.Size = UDim2.new(1, 0, 0, 22)
 
 	Toggle.SetTitle = ToggleFrame.SetTitle
 	Toggle.SetDesc = ToggleFrame.SetDesc
 
-	local ToggleCircle = New("ImageLabel", {
-		AnchorPoint = Vector2.new(0, 0.5),
+	local Check = New("ImageLabel", {
+		Image = Library:GetIcon("check"),
 		Size = UDim2.fromOffset(14, 14),
-		Position = UDim2.new(0, 2, 0.5, 0),
-		Image = "http://www.roblox.com/asset/?id=12266946128",
-		ImageTransparency = 0.5,
-		ThemeTag = {
-			ImageColor3 = "ToggleSlider",
-		},
+		Position = UDim2.fromScale(0.5, 0.5),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		ImageTransparency = 1,
+		ThemeTag = { ImageColor3 = "CheckboxCheck" },
 	})
 
-	local ToggleBorder = New("UIStroke", {
-		Transparency = 0.5,
-		ThemeTag = {
-			Color = "ToggleSlider",
-		},
+	local BoxStroke = New("UIStroke", {
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		ThemeTag = { Color = "CheckboxBorder" },
 	})
 
-	local ToggleSlider = New("Frame", {
-		Size = UDim2.fromOffset(36, 18),
-		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, -10, 0.5, 0),
-		Parent = ToggleFrame.Frame,
-		BackgroundTransparency = 1,
-		ThemeTag = {
-			BackgroundColor3 = "Accent",
-		},
+	local Box = New("Frame", {
+		Size = UDim2.fromOffset(22, 22),
+		Position = UDim2.new(0, 0, 0.5, 0),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Parent = ToggleFrame.Header,
+		ThemeTag = { BackgroundColor3 = "CheckboxBg" },
 	}, {
-		New("UICorner", {
-			CornerRadius = UDim.new(0, 9),
-		}),
-		ToggleBorder,
-		ToggleCircle,
+		New("UICorner", { CornerRadius = UDim.new(0, 6) }),
+		BoxStroke,
+		Check,
 	})
 
 	function Toggle:OnChanged(Func)
@@ -69,19 +64,9 @@ function Element:New(Idx, Config)
 		Value = not not Value
 		Toggle.Value = Value
 
-		Creator.OverrideTag(ToggleBorder, { Color = Toggle.Value and "Accent" or "ToggleSlider" })
-		Creator.OverrideTag(ToggleCircle, { ImageColor3 = Toggle.Value and "ToggleToggled" or "ToggleSlider" })
-		TweenService:Create(
-			ToggleCircle,
-			TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-			{ Position = UDim2.new(0, Toggle.Value and 19 or 2, 0.5, 0) }
-		):Play()
-		TweenService:Create(
-			ToggleSlider,
-			TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-			{ BackgroundTransparency = Toggle.Value and 0 or 1 }
-		):Play()
-		ToggleCircle.ImageTransparency = Toggle.Value and 0 or 0.5
+		Creator.OverrideTag(Box, { BackgroundColor3 = Value and "Accent" or "CheckboxBg" })
+		Creator.OverrideTag(BoxStroke, { Color = Value and "Accent" or "CheckboxBorder" })
+		TweenService:Create(Check, TweenFast, { ImageTransparency = Value and 0 or 1 }):Play()
 
 		Library:SafeCallback(Toggle.Callback, Toggle.Value)
 		Library:SafeCallback(Toggle.Changed, Toggle.Value)

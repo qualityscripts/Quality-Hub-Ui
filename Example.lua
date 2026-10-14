@@ -1,260 +1,143 @@
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+local Fluent = loadstring(game:HttpGet("https://github.com/qualityscripts/Quality-Hub-Ui/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/qualityscripts/Quality-Hub-Ui/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/qualityscripts/Quality-Hub-Ui/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Fluent " .. Fluent.Version,
-    SubTitle = "by dawid",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
+    Title = "Quality Hub",
+    SubTitle = "v1.0",
+    TabWidth = 210,
+    Size = UDim2.fromOffset(780, 520),
+    HideName = true, -- masks your username in the sidebar profile
+    MinimizeKey = Enum.KeyCode.LeftControl
 })
 
---Fluent provides Lucide Icons https://lucide.dev/icons/ for the tabs, icons are optional
+-- Sidebar categories (collapsible). Icons are Lucide names: https://lucide.dev/icons/
+local Hub = Window:AddCategory("Quality Hub")
+local Farm = Window:AddCategory("Farm")
+local Progression = Window:AddCategory("Progression")
+local Combat = Window:AddCategory("Combat")
+
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+    Home = Hub:AddTab({ Title = "Home", Icon = "home" }),
+    AutoQuest = Farm:AddTab({ Title = "Auto Quest", Icon = "scroll" }),
+    MobFarm = Farm:AddTab({ Title = "Mob Farm", Icon = "swords" }),
+    Chests = Farm:AddTab({ Title = "Chests", Icon = "package" }),
+    Haki = Progression:AddTab({ Title = "Haki", Icon = "flame" }),
+    Hao = Progression:AddTab({ Title = "Hao", Icon = "crown" }),
+    Combat = Combat:AddTab({ Title = "Combat", Icon = "sword" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
 }
 
 local Options = Fluent.Options
 
 do
-    Fluent:Notify({
-        Title = "Notification",
-        Content = "This is a notification",
-        SubContent = "SubContent", -- Optional
-        Duration = 5 -- Set to nil to make the notification not disappear
+    -- Sections are cards. Side = "Left" / "Right" (alternates if omitted).
+    local MobFarm = Tabs.MobFarm:AddSection({ Title = "Mob Farm", Icon = "swords", Side = "Left" })
+
+    MobFarm:AddToggle("AutoFarmMobs", {
+        Title = "Auto Farm Mobs",
+        Description = "Kills the mobs you picked nonstop",
+        Default = false,
     })
 
-
-
-    Tabs.Main:AddParagraph({
-        Title = "Paragraph",
-        Content = "This is a paragraph.\nSecond line!"
-    })
-
-
-
-    Tabs.Main:AddButton({
-        Title = "Button",
-        Description = "Very important button",
-        Callback = function()
-            Window:Dialog({
-                Title = "Title",
-                Content = "This is a dialog",
-                Buttons = {
-                    {
-                        Title = "Confirm",
-                        Callback = function()
-                            print("Confirmed the dialog.")
-                        end
-                    },
-                    {
-                        Title = "Cancel",
-                        Callback = function()
-                            print("Cancelled the dialog.")
-                        end
-                    }
-                }
-            })
-        end
-    })
-
-
-
-    local Toggle = Tabs.Main:AddToggle("MyToggle", {Title = "Toggle", Default = false })
-
-    Toggle:OnChanged(function()
-        print("Toggle changed:", Options.MyToggle.Value)
-    end)
-
-    Options.MyToggle:SetValue(false)
-
-
-    
-    local Slider = Tabs.Main:AddSlider("Slider", {
-        Title = "Slider",
-        Description = "This is a slider",
-        Default = 2,
-        Min = 0,
-        Max = 5,
-        Rounding = 1,
-        Callback = function(Value)
-            print("Slider was changed:", Value)
-        end
-    })
-
-    Slider:OnChanged(function(Value)
-        print("Slider changed:", Value)
-    end)
-
-    Slider:SetValue(3)
-
-
-
-    local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
-        Title = "Dropdown",
-        Values = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen"},
-        Multi = false,
-        Default = 1,
-    })
-
-    Dropdown:SetValue("four")
-
-    Dropdown:OnChanged(function(Value)
-        print("Dropdown changed:", Value)
-    end)
-
-
-    
-    local MultiDropdown = Tabs.Main:AddDropdown("MultiDropdown", {
-        Title = "Dropdown",
-        Description = "You can select multiple values.",
-        Values = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen"},
+    local MobList = MobFarm:AddDropdown("Mobs", {
+        Title = "Mobs",
+        Description = "Which mobs to farm (none = all)",
+        Values = { "Bandit", "Monkey", "Gorilla", "Pirate" },
         Multi = true,
-        Default = {"seven", "twelve"},
+        Default = {},
     })
 
-    MultiDropdown:SetValue({
-        three = true,
-        five = true,
-        seven = false
-    })
-
-    MultiDropdown:OnChanged(function(Value)
-        local Values = {}
-        for Value, State in next, Value do
-            table.insert(Values, Value)
-        end
-        print("Mutlidropdown changed:", table.concat(Values, ", "))
-    end)
-
-
-
-    local Colorpicker = Tabs.Main:AddColorpicker("Colorpicker", {
-        Title = "Colorpicker",
-        Default = Color3.fromRGB(96, 205, 255)
-    })
-
-    Colorpicker:OnChanged(function()
-        print("Colorpicker changed:", Colorpicker.Value)
-    end)
-    
-    Colorpicker:SetValueRGB(Color3.fromRGB(0, 255, 140))
-
-
-
-    local TColorpicker = Tabs.Main:AddColorpicker("TransparencyColorpicker", {
-        Title = "Colorpicker",
-        Description = "but you can change the transparency.",
-        Transparency = 0,
-        Default = Color3.fromRGB(96, 205, 255)
-    })
-
-    TColorpicker:OnChanged(function()
-        print(
-            "TColorpicker changed:", TColorpicker.Value,
-            "Transparency:", TColorpicker.Transparency
-        )
-    end)
-
-
-
-    local Keybind = Tabs.Main:AddKeybind("Keybind", {
-        Title = "KeyBind",
-        Mode = "Toggle", -- Always, Toggle, Hold
-        Default = "LeftControl", -- String as the name of the keybind (MB1, MB2 for mouse buttons)
-
-        -- Occurs when the keybind is clicked, Value is `true`/`false`
-        Callback = function(Value)
-            print("Keybind clicked!", Value)
-        end,
-
-        -- Occurs when the keybind itself is changed, `New` is a KeyCode Enum OR a UserInputType Enum
-        ChangedCallback = function(New)
-            print("Keybind changed!", New)
+    MobFarm:AddButton({
+        Title = "Refresh Mobs",
+        Description = "Updates the mob list",
+        Callback = function()
+            MobList:SetValues({ "Bandit", "Monkey", "Gorilla", "Pirate", "Brute" })
         end
     })
 
-    -- OnClick is only fired when you press the keybind and the mode is Toggle
-    -- Otherwise, you will have to use Keybind:GetState()
-    Keybind:OnClick(function()
-        print("Keybind clicked:", Keybind:GetState())
-    end)
+    MobFarm:AddToggle("QuestTargetsFirst", {
+        Title = "Quest Targets First",
+        Description = "Your own quest spawns go first",
+        Default = true,
+    })
 
-    Keybind:OnChanged(function()
-        print("Keybind changed:", Keybind.Value)
-    end)
+    MobFarm:AddToggle("SkipOthersQuestMobs", {
+        Title = "Skip Others' Quest Mobs",
+        Description = "Leaves other players' quest spawns alone",
+        Default = true,
+    })
 
-    task.spawn(function()
-        while true do
-            wait(1)
+    local MobTP = Tabs.MobFarm:AddSection({ Title = "Mob TP", Icon = "map-pin", Side = "Left" })
 
-            -- example for checking if a keybind is being pressed
-            local state = Keybind:GetState()
-            if state then
-                print("Keybind is being held down")
-            end
+    MobTP:AddDropdown("TPMob", {
+        Title = "Mob",
+        Description = "Which mob to go to",
+        Values = { "Bandit", "Monkey", "Gorilla" },
+        Multi = false,
+    })
 
-            if Fluent.Unloaded then break end
-        end
-    end)
-
-    Keybind:SetValue("MB2", "Toggle") -- Sets keybind to MB2, mode to Hold
-
-
-    local Input = Tabs.Main:AddInput("Input", {
-        Title = "Input",
-        Default = "Default",
-        Placeholder = "Placeholder",
-        Numeric = false, -- Only allows numbers
-        Finished = false, -- Only calls callback when you press enter
-        Callback = function(Value)
-            print("Input changed:", Value)
+    MobTP:AddButton({
+        Title = "Go To Mob",
+        Description = "Takes you to the closest one",
+        Callback = function()
+            print("Go to", Options.TPMob.Value)
         end
     })
 
-    Input:OnChanged(function()
-        print("Input updated:", Input.Value)
-    end)
+    local Position = Tabs.MobFarm:AddSection({ Title = "Farm Position", Icon = "crosshair", Side = "Right" })
+
+    Position:AddDropdown("FarmMethod", {
+        Title = "Farm Method",
+        Description = "Teleport locks on, Tween glides over first",
+        Values = { "Teleport", "Tween" },
+        Default = "Teleport",
+    })
+
+    Position:AddDropdown("FarmPosition", {
+        Title = "Position",
+        Description = "Where you stand on the mob",
+        Values = { "Behind", "Above", "Below", "Front" },
+        Default = "Behind",
+    })
+
+    Position:AddSlider("Distance", {
+        Title = "Distance",
+        Description = "How far from the mob",
+        Default = 3, Min = 0, Max = 20, Rounding = 1,
+        Suffix = " studs",
+    })
+
+    Position:AddSlider("HeightOffset", {
+        Title = "Height Offset",
+        Description = "Moves you up or down",
+        Default = 0, Min = -20, Max = 20, Rounding = 1,
+    })
+
+    Position:AddSlider("TweenSpeed", {
+        Title = "Tween Speed",
+        Description = "How fast Tween glides",
+        Default = 100, Min = 16, Max = 500, Rounding = 0,
+        Suffix = " studs/s",
+    })
+
+    local Welcome = Tabs.Home:AddSection({ Title = "Welcome", Icon = "home" })
+    Welcome:AddParagraph({
+        Title = "Quality Hub",
+        Content = "Press LeftControl to hide or show the menu.",
+    })
 end
 
-
--- Addons:
--- SaveManager (Allows you to have a configuration system)
--- InterfaceManager (Allows you to have a interface managment system)
-
--- Hand the library over to our managers
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
-
--- Ignore keys that are used by ThemeManager.
--- (we dont want configs to save themes, do we?)
 SaveManager:IgnoreThemeSettings()
-
--- You can add indexes of elements the save manager should ignore
 SaveManager:SetIgnoreIndexes({})
-
--- use case for doing it this way:
--- a script hub could have themes in a global folder
--- and game configs in a separate folder per game
-InterfaceManager:SetFolder("FluentScriptHub")
-SaveManager:SetFolder("FluentScriptHub/specific-game")
+InterfaceManager:SetFolder("QualityHub")
+SaveManager:SetFolder("QualityHub/specific-game")
 
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
+Window:SelectTab(3) -- Mob Farm
 
-Window:SelectTab(1)
-
-Fluent:Notify({
-    Title = "Fluent",
-    Content = "The script has been loaded.",
-    Duration = 8
-})
-
--- You can use the SaveManager:LoadAutoloadConfig() to load a config
--- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()

@@ -10,7 +10,7 @@ return function(Theme, Parent, DialogCheck)
 	local Button = {}
 
 	Button.Title = New("TextLabel", {
-		FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
+		FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json"),
 		TextColor3 = Color3.fromRGB(200, 200, 200),
 		TextSize = 14,
 		TextWrapped = true,

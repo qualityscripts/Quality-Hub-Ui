@@ -39,7 +39,8 @@ function Element:New(Idx, Config)
 
 	Colorpicker:SetHSVFromRGB(Colorpicker.Value)
 
-	local ColorpickerFrame = require(Components.Element)(Config.Title, Config.Description, self.Container, true)
+	local ColorpickerFrame = require(Components.Element)(Config.Title, Config.Description, self.Container)
+	ColorpickerFrame.TitleLabel.Size = UDim2.new(1, -40, 1, 0)
 
 	Colorpicker.SetTitle = ColorpickerFrame.SetTitle
 	Colorpicker.SetDesc = ColorpickerFrame.SetDesc
@@ -55,10 +56,10 @@ function Element:New(Idx, Config)
 	})
 
 	local DisplayFrame = New("ImageLabel", {
-		Size = UDim2.fromOffset(26, 26),
-		Position = UDim2.new(1, -10, 0.5, 0),
+		Size = UDim2.fromOffset(24, 24),
+		Position = UDim2.new(1, 0, 0.5, 0),
 		AnchorPoint = Vector2.new(1, 0.5),
-		Parent = ColorpickerFrame.Frame,
+		Parent = ColorpickerFrame.Header,
 		Image = "http://www.roblox.com/asset/?id=14204231522",
 		ImageTransparency = 0.45,
 		ScaleType = Enum.ScaleType.Tile,
@@ -89,7 +90,7 @@ function Element:New(Idx, Config)
 		local function CreateInputLabel(Text, Pos)
 			return New("TextLabel", {
 				FontFace = Font.new(
-					"rbxasset://fonts/families/GothamSSm.json",
+					"rbxasset://fonts/families/BuilderSans.json",
 					Enum.FontWeight.Medium,
 					Enum.FontStyle.Normal
 				),

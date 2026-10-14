@@ -9,7 +9,7 @@ return function(Parent, Acrylic)
 	local Textbox = {}
 
 	Textbox.Input = New("TextBox", {
-		FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
+		FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json"),
 		TextColor3 = Color3.fromRGB(200, 200, 200),
 		TextSize = 14,
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -46,18 +46,16 @@ return function(Parent, Acrylic)
 
 	Textbox.Frame = New("Frame", {
 		Size = UDim2.new(0, 0, 0, 30),
-		BackgroundTransparency = Acrylic and 0.9 or 0,
 		Parent = Parent,
 		ThemeTag = {
 			BackgroundColor3 = Acrylic and "Input" or "DialogInput",
 		},
 	}, {
 		New("UICorner", {
-			CornerRadius = UDim.new(0, 4),
+			CornerRadius = UDim.new(0, 7),
 		}),
 		New("UIStroke", {
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			Transparency = Acrylic and 0.5 or 0.65,
 			ThemeTag = {
 				Color = Acrylic and "InElementBorder" or "DialogButtonBorder",
 			},

@@ -5,5 +5,5 @@
 
     Author: dawid
     License: MIT
-    GitHub: https://github.com/dawid-scripts/Fluent
+    GitHub: https://github.com/qualityscripts/Quality-Hub-Ui
 --]]

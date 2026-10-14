@@ -22,94 +22,86 @@ function Element:New(Idx, Config)
 		Min = Config.Min,
 		Max = Config.Max,
 		Rounding = Config.Rounding,
+		Suffix = Config.Suffix or "",
 		Callback = Config.Callback or function(Value) end,
 		Type = "Slider",
 	}
 
 	local Dragging = false
 
-	local SliderFrame = require(Components.Element)(Config.Title, Config.Description, self.Container, false)
-	SliderFrame.DescLabel.Size = UDim2.new(1, -170, 0, 14)
+	local SliderFrame = require(Components.Element)(Config.Title, Config.Description, self.Container)
+	SliderFrame.TitleLabel.Size = UDim2.new(1, -110, 1, 0)
 
 	Slider.SetTitle = SliderFrame.SetTitle
 	Slider.SetDesc = SliderFrame.SetDesc
 
-	local SliderDot = New("ImageLabel", {
-		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.new(0, -7, 0.5, 0),
-		Size = UDim2.fromOffset(14, 14),
-		Image = "http://www.roblox.com/asset/?id=12266946128",
-		ThemeTag = {
-			ImageColor3 = "Accent",
-		},
-	})
-
-	local SliderRail = New("Frame", {
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(7, 0),
-		Size = UDim2.new(1, -14, 1, 0),
-	}, {
-		SliderDot,
+	local SliderDisplay = New("TextLabel", {
+		FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Medium),
+		TextSize = 15,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Size = UDim2.new(0, 110, 1, 0),
+		Position = UDim2.fromScale(1, 0),
+		AnchorPoint = Vector2.new(1, 0),
+		Parent = SliderFrame.Header,
+		ThemeTag = { TextColor3 = "TabText" },
 	})
 
 	local SliderFill = New("Frame", {
-		Size = UDim2.new(0, 0, 1, 0),
-		ThemeTag = {
-			BackgroundColor3 = "Accent",
-		},
+		Size = UDim2.fromScale(0, 1),
+		ThemeTag = { BackgroundColor3 = "Accent" },
 	}, {
-		New("UICorner", {
-			CornerRadius = UDim.new(1, 0),
-		}),
+		New("UICorner", { CornerRadius = UDim.new(1, 0) }),
 	})
 
-	local SliderDisplay = New("TextLabel", {
-		FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
-		Text = "Value",
-		TextSize = 12,
-		TextWrapped = true,
-		TextXAlignment = Enum.TextXAlignment.Right,
-		BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-		BackgroundTransparency = 1,
-		Size = UDim2.new(0, 100, 0, 14),
-		Position = UDim2.new(0, -4, 0.5, 0),
-		AnchorPoint = Vector2.new(1, 0.5),
-		ThemeTag = {
-			TextColor3 = "SubText",
-		},
+	local SliderDot = New("Frame", {
+		Size = UDim2.fromOffset(16, 16),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0, 0.5),
+		ZIndex = 2,
+		ThemeTag = { BackgroundColor3 = "Accent" },
+	}, {
+		New("UICorner", { CornerRadius = UDim.new(1, 0) }),
 	})
 
-	local SliderInner = New("Frame", {
-		Size = UDim2.new(1, 0, 0, 4),
-		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, -10, 0.5, 0),
-		BackgroundTransparency = 0.4,
-		Parent = SliderFrame.Frame,
-		ThemeTag = {
-			BackgroundColor3 = "SliderRail",
-		},
+	local SliderRail = New("Frame", {
+		Size = UDim2.new(1, 0, 0, 5),
+		Position = UDim2.fromScale(0, 0.5),
+		AnchorPoint = Vector2.new(0, 0.5),
+		ThemeTag = { BackgroundColor3 = "SliderRail" },
 	}, {
-		New("UICorner", {
-			CornerRadius = UDim.new(1, 0),
-		}),
-		New("UISizeConstraint", {
-			MaxSize = Vector2.new(150, math.huge),
-		}),
-		SliderDisplay,
+		New("UICorner", { CornerRadius = UDim.new(1, 0) }),
 		SliderFill,
+		SliderDot,
+	})
+
+	local HitArea = New("Frame", {
+		Size = UDim2.new(1, 0, 0, 18),
+		BackgroundTransparency = 1,
+		Parent = SliderFrame:UseControl(),
+	}, {
+		New("UIPadding", {
+			PaddingLeft = UDim.new(0, 8),
+			PaddingRight = UDim.new(0, 8),
+		}),
 		SliderRail,
 	})
 
-	Creator.AddSignal(SliderDot.InputBegan, function(Input)
+	local function UpdateFromInput(Input)
+		local Scale = math.clamp((Input.Position.X - SliderRail.AbsolutePosition.X) / SliderRail.AbsoluteSize.X, 0, 1)
+		Slider:SetValue(Slider.Min + ((Slider.Max - Slider.Min) * Scale))
+	end
+
+	Creator.AddSignal(HitArea.InputBegan, function(Input)
 		if
 			Input.UserInputType == Enum.UserInputType.MouseButton1
 			or Input.UserInputType == Enum.UserInputType.Touch
 		then
 			Dragging = true
+			UpdateFromInput(Input)
 		end
 	end)
 
-	Creator.AddSignal(SliderDot.InputEnded, function(Input)
+	Creator.AddSignal(UserInputService.InputEnded, function(Input)
 		if
 			Input.UserInputType == Enum.UserInputType.MouseButton1
 			or Input.UserInputType == Enum.UserInputType.Touch
@@ -126,9 +118,7 @@ function Element:New(Idx, Config)
 				or Input.UserInputType == Enum.UserInputType.Touch
 			)
 		then
-			local SizeScale =
-				math.clamp((Input.Position.X - SliderRail.AbsolutePosition.X) / SliderRail.AbsoluteSize.X, 0, 1)
-			Slider:SetValue(Slider.Min + ((Slider.Max - Slider.Min) * SizeScale))
+			UpdateFromInput(Input)
 		end
 	end)
 
@@ -139,9 +129,13 @@ function Element:New(Idx, Config)
 
 	function Slider:SetValue(Value)
 		self.Value = Library:Round(math.clamp(Value, Slider.Min, Slider.Max), Slider.Rounding)
-		SliderDot.Position = UDim2.new((self.Value - Slider.Min) / (Slider.Max - Slider.Min), -7, 0.5, 0)
-		SliderFill.Size = UDim2.fromScale((self.Value - Slider.Min) / (Slider.Max - Slider.Min), 1)
-		SliderDisplay.Text = tostring(self.Value)
+		local Scale = (self.Value - Slider.Min) / (Slider.Max - Slider.Min)
+		SliderDot.Position = UDim2.fromScale(Scale, 0.5)
+		SliderFill.Size = UDim2.fromScale(Scale, 1)
+
+		local Text = Slider.Rounding > 0 and string.format("%." .. Slider.Rounding .. "f", self.Value)
+			or tostring(self.Value)
+		SliderDisplay.Text = Text .. Slider.Suffix
 
 		Library:SafeCallback(Slider.Callback, self.Value)
 		Library:SafeCallback(Slider.Changed, self.Value)

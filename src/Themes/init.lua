@@ -1,5 +1,6 @@
 local Themes = {
 	Names = {
+		"Quality",
 		"Dark",
 		"Darker",
 		"Light",

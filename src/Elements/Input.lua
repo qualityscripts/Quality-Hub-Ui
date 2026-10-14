@@ -22,15 +22,13 @@ function Element:New(Idx, Config)
 		Type = "Input",
 	}
 
-	local InputFrame = require(Components.Element)(Config.Title, Config.Description, self.Container, false)
+	local InputFrame = require(Components.Element)(Config.Title, Config.Description, self.Container)
 
 	Input.SetTitle = InputFrame.SetTitle
 	Input.SetDesc = InputFrame.SetDesc
 
-	local Textbox = require(Components.Textbox)(InputFrame.Frame, true)
-	Textbox.Frame.Position = UDim2.new(1, -10, 0.5, 0)
-	Textbox.Frame.AnchorPoint = Vector2.new(1, 0.5)
-	Textbox.Frame.Size = UDim2.fromOffset(160, 30)
+	local Textbox = require(Components.Textbox)(InputFrame:UseControl(), true)
+	Textbox.Frame.Size = UDim2.new(1, 0, 0, 38)
 	Textbox.Input.Text = Config.Default or ""
 	Textbox.Input.PlaceholderText = Config.Placeholder or ""
 

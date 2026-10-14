@@ -27,20 +27,18 @@ function Element:New(Idx, Config)
 		Callback = Config.Callback or function() end,
 	}
 
-	local DropdownFrame = require(Components.Element)(Config.Title, Config.Description, self.Container, false)
-	DropdownFrame.DescLabel.Size = UDim2.new(1, -170, 0, 14)
+	local DropdownFrame = require(Components.Element)(Config.Title, Config.Description, self.Container)
 
 	Dropdown.SetTitle = DropdownFrame.SetTitle
 	Dropdown.SetDesc = DropdownFrame.SetDesc
 
 	local DropdownDisplay = New("TextLabel", {
-		FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+		FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.SemiBold),
 		Text = "Value",
-		TextColor3 = Color3.fromRGB(240, 240, 240),
-		TextSize = 13,
+		TextSize = 16,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		Size = UDim2.new(1, -30, 0, 14),
-		Position = UDim2.new(0, 8, 0.5, 0),
+		Size = UDim2.new(1, -46, 0, 18),
+		Position = UDim2.new(0, 16, 0.5, 0),
 		AnchorPoint = Vector2.new(0, 0.5),
 		BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 		BackgroundTransparency = 1,
@@ -51,34 +49,30 @@ function Element:New(Idx, Config)
 	})
 
 	local DropdownIco = New("ImageLabel", {
-		Image = "rbxassetid://10709790948",
-		Size = UDim2.fromOffset(16, 16),
+		Image = Library:GetIcon("chevron-down"),
+		Size = UDim2.fromOffset(18, 18),
 		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, -8, 0.5, 0),
+		Position = UDim2.new(1, -14, 0.5, 0),
 		BackgroundTransparency = 1,
 		ThemeTag = {
-			ImageColor3 = "SubText",
+			ImageColor3 = "TabText",
 		},
 	})
 
 	local DropdownInner = New("TextButton", {
-		Size = UDim2.fromOffset(160, 30),
-		Position = UDim2.new(1, -10, 0.5, 0),
-		AnchorPoint = Vector2.new(1, 0.5),
-		BackgroundTransparency = 0.9,
-		Parent = DropdownFrame.Frame,
+		Size = UDim2.new(1, 0, 0, 38),
+		Parent = DropdownFrame:UseControl(),
 		ThemeTag = {
-			BackgroundColor3 = "DropdownFrame",
+			BackgroundColor3 = "ControlBg",
 		},
 	}, {
 		New("UICorner", {
-			CornerRadius = UDim.new(0, 5),
+			CornerRadius = UDim.new(0, 7),
 		}),
 		New("UIStroke", {
-			Transparency = 0.5,
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 			ThemeTag = {
-				Color = "InElementBorder",
+				Color = "ControlBorder",
 			},
 		}),
 		DropdownIco,
@@ -147,19 +141,17 @@ function Element:New(Idx, Config)
 	table.insert(Library.OpenFrames, DropdownHolderCanvas)
 
 	local function RecalculateListPosition()
-		local Add = 0
-		if Camera.ViewportSize.Y - DropdownInner.AbsolutePosition.Y < DropdownHolderCanvas.AbsoluteSize.Y - 5 then
-			Add = DropdownHolderCanvas.AbsoluteSize.Y
-				- 5
-				- (Camera.ViewportSize.Y - DropdownInner.AbsolutePosition.Y)
-				+ 40
+		local Below = DropdownInner.AbsolutePosition.Y + DropdownInner.AbsoluteSize.Y + 6
+		local Y = Below
+		if Below + DropdownHolderCanvas.AbsoluteSize.Y > Camera.ViewportSize.Y - 10 then
+			Y = DropdownInner.AbsolutePosition.Y - DropdownHolderCanvas.AbsoluteSize.Y - 6
 		end
-		DropdownHolderCanvas.Position =
-			UDim2.fromOffset(DropdownInner.AbsolutePosition.X - 1, DropdownInner.AbsolutePosition.Y - 5 - Add)
+		DropdownHolderCanvas.Position = UDim2.fromOffset(DropdownInner.AbsolutePosition.X, Y)
 	end
 
 	local ListSizeX = 0
 	local function RecalculateListSize()
+		ListSizeX = math.max(ListSizeX, DropdownInner.AbsoluteSize.X)
 		if #Dropdown.Values > 10 then
 			DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, 392)
 		else
@@ -176,7 +168,14 @@ function Element:New(Idx, Config)
 
 	Creator.AddSignal(DropdownInner:GetPropertyChangedSignal("AbsolutePosition"), RecalculateListPosition)
 
+	Creator.AddSignal(DropdownInner:GetPropertyChangedSignal("AbsoluteSize"), function()
+		RecalculateListSize()
+		RecalculateListPosition()
+	end)
+
 	Creator.AddSignal(DropdownInner.MouseButton1Click, function()
+		RecalculateListSize()
+		RecalculateListPosition()
 		Dropdown:Open()
 	end)
 
@@ -280,7 +279,7 @@ function Element:New(Idx, Config)
 			})
 
 			local ButtonLabel = New("TextLabel", {
-				FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
+				FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json"),
 				Text = Value,
 				TextColor3 = Color3.fromRGB(200, 200, 200),
 				TextSize = 13,
