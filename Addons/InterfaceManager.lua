@@ -6,7 +6,8 @@ local InterfaceManager = {} do
         Theme = "Quality",
         Acrylic = false,
         Transparency = false,
-        MenuKeybind = "LeftControl"
+        MenuKeybind = "LeftControl",
+        UIScale = 100
     }
 
     function InterfaceManager:SetFolder(folder)
@@ -108,6 +109,21 @@ local InterfaceManager = {} do
             InterfaceManager:SaveSettings()
 		end)
 		Library.MinimizeKeybind = MenuKeybind
+
+		section:AddSlider("InterfaceUIScale", {
+			Title = "UI Scale",
+			Description = "Makes the whole interface smaller or bigger.",
+			Default = Settings.UIScale or 100,
+			Min = 10,
+			Max = 100,
+			Rounding = 0,
+			Suffix = "%",
+			Callback = function(Value)
+				Library.Window:SetScale(Value)
+				Settings.UIScale = Value
+				InterfaceManager:SaveSettings()
+			end,
+		})
 
 		InterfaceManager:BuildCustomizeSection(tab)
     end

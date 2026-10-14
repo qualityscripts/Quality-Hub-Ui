@@ -307,9 +307,13 @@ return function(Config)
 		ResizeStartFrame,
 	})
 
-	Creator.AddSignal(Camera:GetPropertyChangedSignal("ViewportSize"), function()
-		Window.Root.FitScale.Scale = FitScale(Window.Size)
-	end)
+	Window.UserScale = 1
+
+	local function ApplyScale()
+		Window.Root.FitScale.Scale = FitScale(Window.Size) * Window.UserScale
+	end
+
+	Creator.AddSignal(Camera:GetPropertyChangedSignal("ViewportSize"), ApplyScale)
 
 	-- Kept for compatibility with code expecting Window.TitleBar.Frame
 	Window.TitleBar = { Frame = TopBar }
@@ -603,6 +607,21 @@ return function(Config)
 				Duration = 6,
 			})
 		end
+	end
+
+	-- Percent is 0-100 on top of the automatic fit-to-screen scale; keeps the window centered where it was.
+	function Window:SetScale(Percent)
+		local OldSize = Window.Root.AbsoluteSize
+		Window.UserScale = math.clamp(Percent, 1, 100) / 100
+		ApplyScale()
+		local NewScale = Window.Root.FitScale.Scale
+		local NewSize = Vector2.new(Window.Size.X.Offset, Window.Size.Y.Offset) * NewScale
+		local Shift = (OldSize - NewSize) / 2
+		Window.Position = UDim2.fromOffset(Window.Position.X.Offset + Shift.X, Window.Position.Y.Offset + Shift.Y)
+		PosMotor:setGoal({
+			X = Instant(Window.Position.X.Offset),
+			Y = Instant(Window.Position.Y.Offset),
+		})
 	end
 
 	function Window:SetTransparency(Value)
