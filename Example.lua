@@ -12,9 +12,12 @@ local Window = Fluent:CreateWindow({
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
--- Tabs can also be grouped with Window:AddCategory("Name"):AddTab({...}). Icons are Lucide names: https://lucide.dev/icons/
+-- Categories are the collapsible headers (with the arrow) that hold tabs.
+local ExampleCategory = Window:AddCategory("Example")
+
+-- Icons are Lucide names: https://lucide.dev/icons/
 local Tabs = {
-    Example = Window:AddTab({ Title = "Example", Icon = "home" }),
+    Example = ExampleCategory:AddTab({ Title = "Example", Icon = "home" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
 }
 
