@@ -46,8 +46,8 @@ function Element:New(Idx, Config)
 		ThemeTag = { TextColor3 = "TabText" },
 	})
 
-	local GlowSpread = 10
-	local SliderGlow = Creator.Glow({
+	local GlowSpread = 12
+	local SliderGlow = Creator.Glow(GlowSpread, 3, {
 		Position = UDim2.fromOffset(-GlowSpread, -GlowSpread),
 	})
 

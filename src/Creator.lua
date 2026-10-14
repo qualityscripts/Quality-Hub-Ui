@@ -149,17 +149,27 @@ function Creator.New(Name, Properties, Children)
 	return Object
 end
 
--- Soft halo drawn behind an element; must be a sibling with lower ZIndex since children render above parents.
-function Creator.Glow(Props)
-	local Glow = Creator.New("ImageLabel", {
-		Image = "rbxassetid://5554236805",
-		ScaleType = Enum.ScaleType.Slice,
-		SliceCenter = Rect.new(23, 23, 277, 277),
-		SliceScale = 0.45,
-		ImageTransparency = 0.6,
+-- Soft halo drawn behind an element (must be a sibling with lower ZIndex, since children render above parents).
+-- Built from stacked translucent rounded layers so it can take any color; fade it with GroupTransparency.
+-- Size/Position should include Spread on every side; Corner is the corner radius of the glowing element.
+function Creator.Glow(Spread, Corner, Props)
+	local Layers = 10
+	local Glow = Creator.New("CanvasGroup", {
+		BackgroundTransparency = 1,
 		ZIndex = 1,
-		ThemeTag = { ImageColor3 = "Glow" },
 	})
+	for Index = 0, Layers - 1 do
+		local Inset = Spread * Index / Layers
+		Creator.New("Frame", {
+			Size = UDim2.new(1, -Inset * 2, 1, -Inset * 2),
+			Position = UDim2.fromOffset(Inset, Inset),
+			BackgroundTransparency = 0.93,
+			Parent = Glow,
+			ThemeTag = { BackgroundColor3 = "Glow" },
+		}, {
+			Creator.New("UICorner", { CornerRadius = UDim.new(0, Corner + Spread - Inset) }),
+		})
+	end
 	for Name, Value in next, Props or {} do
 		Glow[Name] = Value
 	end
